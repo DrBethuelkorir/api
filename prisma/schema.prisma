@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+   
+}
+
+datasource db {
+  provider = "postgresql"
+}
+model users{
+  id String @id @default(uuid())
+  email String @unique
+  password String
+  name String?
+  profileInfo ProfileInfo?
+  userGroups UsersToGroups[]
+  posts post[]
+  comments comments[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([name, email])
+  @@map("users")
+}
+model ProfileInfo{
+  id String @id @default(uuid())
+  userId String @unique
+  metaData Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Define the relation to the users model
+  user users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([userId])
+  @@map("profile_info")
+}
+model post{
+  id String @id @default(uuid())
+  title String
+  content String
+  userId String
+  comments comments[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relationships
+  user users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  @@index([userId, title])
+  @@map("posts")
+}
+model comments{
+  id String @id @default(uuid())
+  content String
+  postId String
+  userId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relationships
+  post post @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  @@index([postId, userId])
+  @@map("comments")
+}
+model groups{
+  id String @id @default(uuid())
+  name String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relationships
+  userGroups UsersToGroups[]
+  @@index([name])
+  @@map("groups")
+}
+model UsersToGroups{
+  userId String 
+  groupId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relationships
+  user users @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  group groups @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  @@id([userId, groupId])
+  @@index([userId, groupId])
+  @@map("users_to_groups")
+}
