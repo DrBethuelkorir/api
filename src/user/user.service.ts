@@ -23,4 +23,7 @@ async findUserByEmail(email: string) {
 async checkPassword(password: string, hashedPassword: string) {
     return await bcrypt.compare(password, hashedPassword);
 }
+async getAllUsers() {
+    return await this.prisma.users.findMany();
+}
 }

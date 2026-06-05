@@ -42,7 +42,7 @@ model ProfileInfo{
 }
 model post{
   id String @id @default(uuid())
-  title String
+  title String?
   content String
   userId String
   comments comments[]
